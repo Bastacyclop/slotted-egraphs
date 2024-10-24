@@ -36,6 +36,14 @@ impl MyCost {
             (Finite(x), Finite(y)) => Finite(*x + *y),
         }
     }
+    pub fn mult(&self, other: &MyCost) -> MyCost {
+        use MyCost::*;
+        match (self, other) {
+            (Infinite, _) => Infinite,
+            (_, Infinite) => Infinite,
+            (Finite(x), Finite(y)) => Finite(*x * *y),
+        }
+    }
 }
 
 impl PartialOrd for MyCost {
