@@ -30,3 +30,20 @@ fn t1() {
     eprintln!("{}", re.to_string());
     eprintln!("{}", term.to_string());
 }
+
+#[test]
+fn dce() {
+    let input = &format!("(lambda $a (let $b (var $a) (var $a)))");
+
+    let re: RecExpr<Sdql> = RecExpr::parse(input).unwrap();
+    let rewrites = sdql_rules();
+
+    let mut eg = EGraph::new();
+
+    let id = eg.add_syn_expr(re.clone());
+
+    apply_rewrites(&mut eg, &rewrites);
+    let term = extract::<_, _, AstSize>(id.clone(), &eg);
+    eprintln!("{}", re.to_string());
+    eprintln!("{}", term.to_string());
+}

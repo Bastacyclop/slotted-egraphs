@@ -12,6 +12,7 @@ pub enum Sdql {
     Var(Slot),
     Sing(AppliedId, AppliedId),
     Sum(Slot, Slot, /*range: */AppliedId, /*body: */ AppliedId),
+    Let(Slot, AppliedId, AppliedId),
 }
 
 impl Language for Sdql {
@@ -35,6 +36,11 @@ impl Language for Sdql {
                 out.extend(r.slots_mut());
                 out.extend(b.slots_mut());
             }
+            Sdql::Let(x, e1, e2) => {
+                out.push(x);
+                out.extend(e1.slots_mut());
+                out.extend(e2.slots_mut());
+            }
         }
         out
     }
@@ -57,6 +63,10 @@ impl Language for Sdql {
                 out.extend(b.slots_mut().into_iter().filter(|y| *y != k && *y != v));
                 out.extend(r.slots_mut());
             }
+            Sdql::Let(x, e1, e2) => {
+                out.extend(e2.slots_mut().into_iter().filter(|y| *y != x));
+                out.extend(e1.slots_mut());
+            }
         }
         out
     }
@@ -67,6 +77,7 @@ impl Language for Sdql {
             Sdql::Var(_) => vec![],
             Sdql::Sing(x, y) => vec![x, y],
             Sdql::Sum(_, _, r, b) => vec![r, b],
+            Sdql::Let(_, e1, e2) => vec![e1, e2],
         }
     }
 
@@ -76,6 +87,7 @@ impl Language for Sdql {
             Sdql::Var(s) => (String::from("var"), vec![Child::Slot(s)]),
             Sdql::Sing(x, y) => (String::from("sing"), vec![Child::AppliedId(x), Child::AppliedId(y)]),
             Sdql::Sum(k, v, r, b) => (String::from("sum"), vec![Child::Slot(k), Child::Slot(v), Child::AppliedId(r), Child::AppliedId(b)]),
+            Sdql::Let(x, e1, e2) => (String::from("let"), vec![Child::Slot(x), Child::AppliedId(e1), Child::AppliedId(e2)]),
         }
     }
 
@@ -85,6 +97,7 @@ impl Language for Sdql {
             ("var", [Child::Slot(s)]) => Some(Sdql::Var(*s)),
             ("sing", [Child::AppliedId(x), Child::AppliedId(y)]) => Some(Sdql::Sing(x.clone(), y.clone())),
             ("sum", [Child::Slot(k), Child::Slot(v), Child::AppliedId(r), Child::AppliedId(b)]) => Some(Sdql::Sum(*k, *v, r.clone(), b.clone())),
+            ("let", [Child::Slot(x), Child::AppliedId(e1), Child::AppliedId(e2)]) => Some(Sdql::Let(*x, e1.clone(), e2.clone())),
             _ => None,
         }
     }
