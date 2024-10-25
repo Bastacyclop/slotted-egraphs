@@ -16,11 +16,12 @@ impl CostFunction<Sdql> for SdqlCost {
         let let_coef = 10;
         let infinity = usize::MAX / 1000;
         let op_cost = match enode {
-            // Sdql::Get(_) => 20,
+            Sdql::Get(_, _) => 20,
             Sdql::Let(rng, _, _) => let_coef,
             Sdql::Sing(_, _) => 50,
-            // Sdql::App(_) |
-            // Sdql::Binop(_) => infinity,
+            Sdql::App(_, _) =>
+            // Sdql::Binop(_) => 
+              infinity,
             Sdql::Var(_) => var_access,
             // Sdql::Num(_) => num_access,
             // Sdql::Unique(_) => 0,
