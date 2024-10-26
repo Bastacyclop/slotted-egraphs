@@ -25,8 +25,8 @@ pub fn check_generic(input: &str, s2: &str, debug: bool) {
     let actual = term.to_string();
     if debug {
     	// eprintln!("{}", input);
-    	eprintln!("{}", s2);
-    	eprintln!("{}", actual);
+    	eprintln!("Expected:{}", s2);
+    	eprintln!("Actual:  {}", actual);
     	// eprintln!("{}", SdqlCost.cost_rec(&term))
     }
     assert!(is_same(&actual, s2, &mut eg));
@@ -126,4 +126,27 @@ fn sum_vert_fuse4() {
 	check("(lambda $R (lambda $a
 	(sum $i $j (sum $i2 $j2 (var $R) (sing (var $i2) (var $j2))) (sing (var $j) (var $a)))
 ))", "(lambda $var_01 (lambda $var_02 (sum $var_03 $var_04 (var $var_01) (sing (var $var_04) (var $var_02)))))")
+}
+
+#[test]
+fn sum_fact1() {
+	check("(lambda $R (lambda $a
+	(sum $i $j (var $R) (sing (var $a) (var $j)))
+))", "(lambda $var_01 (lambda $var_02 (sing (var $var_02) (sum $var_03 $var_04 (var $var_01) (var $var_04)))))")
+}
+
+#[test]
+fn sum_fact2() {
+	check("(lambda $R (lambda $a
+	(sum $i $j (var $R) (* 1.5 (var $j)))
+))", "(lambda $var_01 (lambda $var_02 (* 1.5 (sum $var_03 $var_04 (var $var_01) (var $var_04)))))")
+}
+
+#[test]
+fn sum_fact3() {
+	check("(lambda $R (lambda $a
+	(sum $i $j (var $R) (* 15 (sum $i2 $j2 (var $a) (var $j2))))
+))", "(lambda $var_01 (lambda $var_02 
+    (* (sum $var_03 $var_04 (var $var_01) 15) (sum $var_03 $var_04 (var $var_02) (var $var_04)))
+))")
 }
