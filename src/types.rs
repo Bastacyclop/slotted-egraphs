@@ -47,9 +47,16 @@ pub struct RecExpr<L: Language> {
 
 // impl<L: Language> AsRef<[L]> for RecExpr<L> {
 //     fn as_ref(&self) -> &[L] {
-//         &self.children.iter().map(|c| c.node).collect::<Vec<_>>()
+//         let v = self.children.iter().map(|c| c.node.clone()).collect::<Vec<_>>();
+//         &v.clone()
 //     }
 // }
+
+impl<L: Language> AsRef<[RecExpr<L>]> for RecExpr<L> {
+    fn as_ref(&self) -> &[RecExpr<L>] {
+        &self.children
+    }
+}
 
 impl AppliedId {
     pub fn new(id: Id, m: SlotMap) -> Self {

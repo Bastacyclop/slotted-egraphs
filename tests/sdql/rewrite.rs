@@ -1,5 +1,26 @@
 use crate::*;
 
+// rw!("mult-assoc1"; "(* (* ?a ?b) ?c)" => "(* ?a (* ?b ?c))"),
+fn mult_assoc1() -> Rewrite<Sdql> {
+    Rewrite::new("mult-assoc1", "(* (* ?a ?b) ?c)", "(* ?a (* ?b ?c))")
+}
+// rw!("mult-assoc2"; "(* ?a (* ?b ?c))" => "(* (* ?a ?b) ?c)"),
+fn mult_assoc2() -> Rewrite<Sdql> {
+    Rewrite::new("mult-assoc2", "(* ?a (* ?b ?c))", "(* (* ?a ?b) ?c)")
+}
+// rw!("sub-identity";"(- ?e ?e)"        => "0"),
+fn sub_identity() -> Rewrite<Sdql> {
+    Rewrite::new("sub-identity", "(- ?e ?e)", "0")
+}
+// rw!("add-zero";    "(+ ?e 0)"         => "?e"),
+fn add_zero() -> Rewrite<Sdql> {
+    Rewrite::new("add-zero", "(+ ?e 0)", "?e")
+}
+// rw!("sub-zero";    "(- ?e 0)"         => "?e"),
+fn sub_zero() -> Rewrite<Sdql> {
+    Rewrite::new("sub-zero", "(- ?e 0)", "?e")
+}
+
 fn beta() -> Rewrite<Sdql> {
     Rewrite::new("beta", "(let $x ?t ?body)", "?body[(var $x) := ?t]")
 }
@@ -85,7 +106,9 @@ fn unique_rm() -> Rewrite<Sdql> {
 
 pub fn sdql_rules() -> Vec<Rewrite<Sdql>> {
 
-    vec![beta(), sum_fact_3(), 
+    vec![
+      mult_assoc1(), mult_assoc2(), sub_identity(), add_zero(), sub_zero(),
+      beta(), sum_fact_3(), 
       sum_sum_vert_fuse_1(),
       sum_sum_vert_fuse_2(),
       get_sum_vert_fuse_1(),

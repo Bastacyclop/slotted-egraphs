@@ -14,7 +14,7 @@ pub fn check_generic(input: &str, s2: &str, debug: bool) {
 
     let id1 = eg.add_syn_expr(re.clone());
 
-    let steps = 5;
+    let steps = 10;
 
     for _ in 0..steps {
     	apply_rewrites(&mut eg, &rewrites);
@@ -22,13 +22,14 @@ pub fn check_generic(input: &str, s2: &str, debug: bool) {
 
     // apply_rewrites(&mut eg, &rewrites);
     let term = extract::<_, _, SdqlCost>(id1.clone(), &eg);
-    let expected = term.to_string();
+    let actual = term.to_string();
     if debug {
-    	eprintln!("{}", input);
-    	eprintln!("{}", expected);
-    	// eprintln!("{}", SdqlCost.cost(term, |_| panic!()))
+    	// eprintln!("{}", input);
+    	eprintln!("{}", s2);
+    	eprintln!("{}", actual);
+    	// eprintln!("{}", SdqlCost.cost_rec(&term))
     }
-    assert!(is_same(&expected, s2, &mut eg));
+    assert!(is_same(&actual, s2, &mut eg));
 }
 
 pub fn check(input: &str, s2: &str) {
@@ -67,11 +68,11 @@ fn blow3() {
 )", "(lambda $var_1 (binop op2 (binop op1 (var $var_1) (var $var_1)) (var $var_1)))")
 }
 
-// #[test]
-// fn blow4() {
-//     check_debug("(lambda $a (lambda $b (let $x (let $y (* (var $a) (var $b)) (+ (var $y) (* (var $y) (var $b)))) (+ (var $x) (* (var $x) (var $b)))) ) )", 
-//     	"(lambda $var_1 (lambda $var_2 (let $var_3 (+ (* (var $var_1) (var $var_2)) (* (var $var_1) (* (var $var_2) (var $var_2)))) (+ (var $var_3) (* (var $var_3) (var $var_2))))))")
-// }
+#[test]
+fn blow4() {
+    check("(lambda $a (lambda $b (let $x (let $y (* (var $a) (var $b)) (+ (var $y) (* (var $y) (var $b)))) (+ (var $x) (* (var $x) (var $b)))) ) )", 
+    	"(lambda $var_1 (lambda $var_2 (let $var_3 (+ (* (var $var_1) (var $var_2)) (* (var $var_1) (* (var $var_2) (var $var_2)))) (+ (var $var_3) (* (var $var_3) (var $var_2))))))")
+}
 
 // // needs more rules enabled
 // #[test]
