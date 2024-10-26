@@ -119,6 +119,16 @@ fn sing_mult_4() -> Rewrite<Sdql> {
     Rewrite::new("sing-mult-4", "(* ?e2 (sing ?e1 ?e3))", "(sing ?e1 (* ?e2 ?e3))")
 }
 
+// rw!("sum-merge";  "(sum ?R (sum ?S (ifthen (== %2 %0) ?body)))"        => 
+//     { with_shifted_double_down(var("?S"), var("?Sd"), 2,
+//         "(merge ?R ?Sd (let %1 ?body))".parse::<Pattern<SDQL>>().unwrap()
+//     )}),
+fn sum_merge() -> Rewrite<Sdql> {
+    Rewrite::new("sum-merge", 
+        "(sum $k1 $v1 ?R (sum $k2 $v2 ?S (ifthen (eq (var $v1) (var $v2)) ?body)))", 
+        "(merge $k1 $k2 $v1 ?R ?S (let $v2 (var $v1) ?body))")
+}
+
 // rw!("sum-sing";    "(sum ?e1 (sing %1 %0))" => "?e1"),
 fn sum_sing() -> Rewrite<Sdql> {
     Rewrite::new("sum-sing", "(sum $k $v ?e1 (sing (var $k) (var $v)))", "?e1")
@@ -140,6 +150,7 @@ pub fn sdql_rules() -> Vec<Rewrite<Sdql>> {
       sum_sum_vert_fuse_2(),
       get_sum_vert_fuse_1(),
       sing_mult_1(), sing_mult_2(), sing_mult_3(), sing_mult_4(),
+      sum_merge(),
       sum_sing(), unique_rm()
       ]
 }

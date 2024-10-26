@@ -150,3 +150,21 @@ fn sum_fact3() {
     (* (sum $var_03 $var_04 (var $var_01) 15) (sum $var_03 $var_04 (var $var_02) (var $var_04)))
 ))")
 }
+
+#[test]
+fn sum_merge1() {
+	check("(lambda $R (lambda $S
+	(sum $k1 $v1 (var $R) (sum $k2 $v2 (var $S) (ifthen (eq (var $v1) (var $v2)) (* (var $k1) (var $v1)))))
+))", "(lambda $var_01 (lambda $var_02 
+    (merge $var_03 $var_05 $var_04 (var $var_01) (var $var_02) (* (var $var_03) (var $var_04)))
+))")
+}
+
+#[test]
+fn sum_merge2() {
+	check("(lambda $R (lambda $S
+	(sum $k1 $v1 (var $R) (sum $k2 $v2 (var $S) (ifthen (eq (var $v1) (var $v2)) (* (var $k1) (var $v2)))))
+))", "(lambda $var_01 (lambda $var_02 
+    (merge $var_03 $var_05 $var_04 (var $var_01) (var $var_02) (* (var $var_03) (var $var_04)))
+))")
+}
