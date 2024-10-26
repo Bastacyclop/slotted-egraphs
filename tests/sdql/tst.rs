@@ -43,6 +43,13 @@ fn blow2() {
     check("(lambda $a (let $x (var $a) (* (var $a) (var $x))))", "(lambda $var_1 (* (var $var_1) (var $var_1)))")
 }
 
+#[test]
+fn blow3() {
+	check("(lambda $a
+	(let $x (binop op1 (var $a) (var $a)) (binop op2 (var $x) (var $a)))
+)", "(lambda $var_1 (binop op2 (binop op1 (var $var_1) (var $var_1)) (var $var_1)))")
+}
+
 // #[test]
 // fn blow4() {
 //     check("(lambda $a (lambda $b (let $x (let $y (* (var $a) (var $b)) (+ (var $y) (* (var $y) (var $b)))) (+ (var $x) (* (var $x) (var $b)))) ) )", 
