@@ -4,6 +4,24 @@ use crate::*;
 #[derive(Clone, Copy, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Id(pub usize);
 
+impl From<u32> for Id {
+    fn from(n: u32) -> Id {
+        Id(n as usize)
+    }
+}
+
+impl From<usize> for Id {
+    fn from(n: usize) -> Id {
+        Id(n)
+    }
+}
+
+impl From<Id> for usize {
+    fn from(id: Id) -> usize {
+        id.0 as usize
+    }
+}
+
 /// AppliedIds are invocations of e-classes.
 ///
 /// Recall that in slotted egraphs, e-classes have arguments - and in order to talk about the set of terms in an e-class, you always need to invocate your e-class using a bunch of arguments.
@@ -27,6 +45,11 @@ pub struct RecExpr<L: Language> {
     pub children: Vec<RecExpr<L>>,
 }
 
+// impl<L: Language> AsRef<[L]> for RecExpr<L> {
+//     fn as_ref(&self) -> &[L] {
+//         &self.children.iter().map(|c| c.node).collect::<Vec<_>>()
+//     }
+// }
 
 impl AppliedId {
     pub fn new(id: Id, m: SlotMap) -> Self {

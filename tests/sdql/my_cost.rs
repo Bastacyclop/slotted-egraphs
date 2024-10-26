@@ -23,8 +23,8 @@ impl CostFunction<Sdql> for SdqlCost {
             // Sdql::Binop(_) => 
               infinity,
             Sdql::Var(_) => var_access,
-            // Sdql::Num(_) => num_access,
-            // Sdql::Unique(_) => 0,
+            Sdql::Num(_) => num_access,
+            Sdql::Unique(_) => 0,
             _ => 1
         };
         match enode {

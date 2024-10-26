@@ -1,6 +1,8 @@
+// use crate::lib::HashMap;
 use crate::*;
 
 use std::marker::PhantomData;
+
 
 /// A cost function to guide extraction.
 ///
@@ -8,6 +10,22 @@ use std::marker::PhantomData;
 pub trait CostFunction<L: Language> {
     type Cost: Ord + Clone + Debug;
     fn cost<C>(&self, enode: &L, costs: C) -> Self::Cost where C: Fn(Id) -> Self::Cost;
+    /*
+    /// Calculates the total cost of a [`RecExpr`].
+    ///
+    /// As provided, this just recursively calls `cost` all the way
+    /// down the [`RecExpr`].
+    ///
+    // fn cost_rec(&mut self, expr: &RecExpr<L>) -> Self::Cost {
+    //     let mut costs: HashMap<Id, Self::Cost> = HashMap::default();
+    //     for (i, node) in expr.as_ref().iter().enumerate() {
+    //         let cost = self.cost(node, |i| costs[&i].clone());
+    //         costs.insert(Id::from(i), cost);
+    //     }
+    //     let last_id = Id::from(expr.as_ref().len() - 1);
+    //     costs[&last_id].clone()
+    // }
+    */
 }
 
 /// The 'default' [CostFunction]. It measures the size of the abstract syntax tree of the corresponding term.
