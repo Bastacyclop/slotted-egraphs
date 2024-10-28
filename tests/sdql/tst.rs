@@ -1,4 +1,5 @@
 use crate::*;
+use std::fs;
 
 pub fn is_same<L: Language>(s1: &str, s2: &str, eg: &mut EGraph<L>) -> bool {
     let s1i = id(s1, eg);
@@ -34,6 +35,13 @@ pub fn check_generic(input: &str, s2: &str, debug: bool) {
 
 pub fn check(input: &str, s2: &str) {
 	check_generic(input, s2, false)
+}
+
+pub fn check_file(input_path: &str, expected_path: &str) {
+	let folder = "tests/sdql/progs";
+	let input = fs::read_to_string(format!("{folder}/{input_path}.sexp")).expect("Unable to read file");
+	let expected = fs::read_to_string(format!("{folder}/{expected_path}.sexp")).expect("Unable to read file");
+	check_generic(&input, &expected, false)
 }
 
 pub fn check_debug(input: &str, s2: &str) {
@@ -167,4 +175,29 @@ fn sum_merge2() {
 ))", "(lambda $var_01 (lambda $var_02 
     (merge $var_03 $var_05 $var_04 (var $var_01) (var $var_02) (* (var $var_03) (var $var_04)))
 ))")
+}
+
+#[test]
+fn batax_v0() {
+	check_file("batax_v0", "batax_v0_esat")
+}
+
+#[test]
+fn mmm_sum_v0() {
+	check_file("mmm_sum_v0", "mmm_sum_v0_esat")
+}
+
+#[test]
+fn mmm_v0() {
+	check_file("mmm_v0", "mmm_v0_esat")
+}
+
+#[test]
+fn mttkrp_v0() {
+	check_file("mttkrp_v0", "mttkrp_v0_esat")
+}
+
+#[test]
+fn ttm_v0() {
+	check_file("ttm_v0", "ttm_v0_esat")
 }
