@@ -4,7 +4,7 @@ use std::fs;
 pub fn is_same<L: Language>(s1: &str, s2: &str, eg: &mut EGraph<L>) -> bool {
     let s1i = id(s1, eg);
     let s2i = id(s2, eg);
-    s1i.id == s2i.id
+    return eg.eq(&s1i, &s2i);
 }
 
 pub fn check_generic(input: &str, s2: &str, debug: bool) {

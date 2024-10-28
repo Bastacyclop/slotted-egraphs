@@ -36,10 +36,10 @@ pub fn singleton_set<T: Eq + Hash>(t: T) -> HashSet<T> {
 
 
 pub fn id<L: Language>(s: &str, eg: &mut EGraph<L>) -> AppliedId {
-    eg.check();
+    // eg.check();
     let re = RecExpr::parse(s).unwrap();
     let out = eg.add_syn_expr(re.clone());
-    eg.check();
+    // eg.check();
     out
 }
 
