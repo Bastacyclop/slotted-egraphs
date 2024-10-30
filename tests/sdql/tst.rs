@@ -219,3 +219,8 @@ fn mttkrp_v0() {
 fn ttm_v0() {
 	check_file("ttm_v0", "ttm_v0_esat")
 }
+
+#[test]
+fn mmm_sum_v7_csc_csr_unfused() {
+	check_file_debug("mmm_sum_v7_csc_csr_unfused", "mmm_sum_v7_csc_csr_unfused_esat")
+}

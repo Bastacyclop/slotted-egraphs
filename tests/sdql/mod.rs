@@ -29,6 +29,7 @@ pub enum Sdql {
     App(AppliedId, AppliedId),
     IfThen(AppliedId, AppliedId),
     Binop(AppliedId, AppliedId, AppliedId),
+    SubArray(AppliedId, AppliedId, AppliedId),
     Unique(AppliedId),
     Sum(Slot, Slot, /*range: */AppliedId, /*body: */ AppliedId),
     Merge(Slot, Slot, Slot, /*range1: */AppliedId, /*range2: */AppliedId, /*body: */ AppliedId),
@@ -85,6 +86,11 @@ impl Language for Sdql {
                 out.extend(y.slots_mut());
             }
             Sdql::Binop(x, y, z) => {
+                out.extend(x.slots_mut());
+                out.extend(y.slots_mut());
+                out.extend(z.slots_mut());
+            }
+            Sdql::SubArray(x, y, z) => {
                 out.extend(x.slots_mut());
                 out.extend(y.slots_mut());
                 out.extend(z.slots_mut());
@@ -168,6 +174,11 @@ impl Language for Sdql {
                 out.extend(y.slots_mut());
                 out.extend(z.slots_mut());
             }
+            Sdql::SubArray(x, y, z) => {
+                out.extend(x.slots_mut());
+                out.extend(y.slots_mut());
+                out.extend(z.slots_mut());
+            }
             Sdql::Unique(x) => {
                 out.extend(x.slots_mut());
             }
@@ -204,6 +215,7 @@ impl Language for Sdql {
             Sdql::App(x, y) => vec![x, y],
             Sdql::IfThen(x, y) => vec![x, y],
             Sdql::Binop(x, y, z) => vec![x, y, z],
+            Sdql::SubArray(x, y, z) => vec![x, y, z],
             Sdql::Unique(x) => vec![x],
             Sdql::Sum(_, _, r, b) => vec![r, b],
             Sdql::Merge(_, _, _, r1, r2, b) => vec![r1, r2, b],
@@ -227,6 +239,7 @@ impl Language for Sdql {
             Sdql::App(x, y) => (String::from("apply"), vec![Child::AppliedId(x), Child::AppliedId(y)]),
             Sdql::IfThen(x, y) => (String::from("ifthen"), vec![Child::AppliedId(x), Child::AppliedId(y)]),
             Sdql::Binop(x, y, z) => (String::from("binop"), vec![Child::AppliedId(x), Child::AppliedId(y), Child::AppliedId(z)]),
+            Sdql::SubArray(x, y, z) => (String::from("subarray"), vec![Child::AppliedId(x), Child::AppliedId(y), Child::AppliedId(z)]),
             Sdql::Unique(x) => (String::from("unique"), vec![Child::AppliedId(x)]),
             Sdql::Sum(k, v, r, b) => (String::from("sum"), vec![Child::Slot(k), Child::Slot(v), Child::AppliedId(r), Child::AppliedId(b)]),
             Sdql::Merge(k1, k2, v, r1, r2, b) => (String::from("merge"), vec![Child::Slot(k1), Child::Slot(k2), Child::Slot(v), Child::AppliedId(r1), Child::AppliedId(r2), Child::AppliedId(b)]),
@@ -250,6 +263,7 @@ impl Language for Sdql {
             ("apply", [Child::AppliedId(x), Child::AppliedId(y)]) => Some(Sdql::App(x.clone(), y.clone())),
             ("ifthen", [Child::AppliedId(x), Child::AppliedId(y)]) => Some(Sdql::IfThen(x.clone(), y.clone())),
             ("binop", [Child::AppliedId(x), Child::AppliedId(y), Child::AppliedId(z)]) => Some(Sdql::Binop(x.clone(), y.clone(), z.clone())),
+            ("subarray", [Child::AppliedId(x), Child::AppliedId(y), Child::AppliedId(z)]) => Some(Sdql::SubArray(x.clone(), y.clone(), z.clone())),
             ("unique", [Child::AppliedId(x)]) => Some(Sdql::Unique(x.clone())),
             ("sum", [Child::Slot(k), Child::Slot(v), Child::AppliedId(r), Child::AppliedId(b)]) => Some(Sdql::Sum(*k, *v, r.clone(), b.clone())),
             ("merge", [Child::Slot(k1), Child::Slot(k2), Child::Slot(v), Child::AppliedId(r1), Child::AppliedId(r2), Child::AppliedId(b)]) => Some(Sdql::Merge(*k1, *k2, *v, r1.clone(), r2.clone(), b.clone())),
