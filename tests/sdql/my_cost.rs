@@ -2,10 +2,14 @@ use crate::*;
 
 use std::cmp::Ordering;
 
-#[derive(Default)]
-pub struct SdqlCost;
+type SdqlEgraph = EGraph<Sdql, SdqlKind>;
 
-impl CostFunction<Sdql> for SdqlCost {
+// #[derive(Default)]
+pub struct SdqlCost<'a> {
+    pub egraph: &'a SdqlEgraph,
+}
+
+impl<'a> CostFunction<Sdql> for SdqlCost<'a> {
     type Cost = usize;
 
     fn cost<C>(&self, enode: &Sdql, costs: C) -> usize where C: Fn(Id) -> usize {
@@ -19,8 +23,8 @@ impl CostFunction<Sdql> for SdqlCost {
             Sdql::Get(_, _) => 20,
             Sdql::Let(rng, _, _) => let_coef,
             Sdql::Sing(_, _) => 50,
-            Sdql::App(_, _) =>
-            // Sdql::Binop(_) => 
+            Sdql::App(_, _) |
+            Sdql::Binop(..) => 
               infinity,
             Sdql::Var(_) => var_access,
             Sdql::Num(_) => num_access,
@@ -30,12 +34,11 @@ impl CostFunction<Sdql> for SdqlCost {
         match enode {
             Sdql::Sum(_, _, range, body) =>
                 costs(range.id) +
-                    // (if(self.egraph[*range].data.kind.contains(&SdqlType::Vector)) {  
-                    //     sum_vector_coef 
-                    // } else { 
-                    //     sum_dict_coef 
-                    // }) 
-                    sum_dict_coef * (
+                    (if(self.egraph.analysis_data(range.id).mightBeVector) {  
+                        sum_vector_coef 
+                    } else { 
+                        sum_dict_coef 
+                    }) * (
                     costs(body.id) + 1)
                 ,
             _ => {

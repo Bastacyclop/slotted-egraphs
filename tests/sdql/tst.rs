@@ -30,13 +30,15 @@ pub fn check_generic(input: &str, s2: &str, debug: bool) {
     }
 
     // apply_rewrites(&mut eg, &rewrites);
-    let term = extract::<_, _, SdqlCost>(&id1.clone(), &eg);
+    let cost_func = SdqlCost { egraph: &eg };
+    let extractor = Extractor::<_, SdqlCost>::new(&eg, cost_func);
+    let term = extractor.extract(&id1.clone(), &eg);
     let actual = term.to_string();
     if debug {
     	// eprintln!("{}", input);
     	eprintln!("Expected:{}", s2);
     	eprintln!("Actual:  {}", actual);
-    	eprintln!("Cost: {}", SdqlCost.cost_rec(&term))
+    	// eprintln!("Cost: {}", extractor.get_best_cost(&id1.clone(), &eg))
     }
     assert!(is_same(&actual, s2, &mut eg));
 }

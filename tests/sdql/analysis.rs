@@ -2,10 +2,10 @@ use crate::*;
 
 #[derive(PartialEq, Eq, Clone, Debug)]
 pub struct SdqlKind {
-    mightBeVector: bool,
-    mightBeDict: bool,
-    mightBeScalar: bool,
-    mightBeBool: bool,
+    pub mightBeVector: bool,
+    pub mightBeDict: bool,
+    pub mightBeScalar: bool,
+    pub mightBeBool: bool,
 }
 
 impl Analysis<Sdql> for SdqlKind {
