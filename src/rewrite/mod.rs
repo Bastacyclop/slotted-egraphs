@@ -44,11 +44,17 @@ fn any_to_t<T: Any>(t: Box<dyn Any>) -> T {
 }
 
 /// Applies each given rewrite rule to the E-Graph once.
-pub fn apply_rewrites<L: Language, N: Analysis<L>>(eg: &mut EGraph<L, N>, rewrites: &[Rewrite<L, N>]) {
+/// Returns an indicator for whether the e-graph changed as a result.
+#[cfg_attr(feature = "trace", instrument(level = "trace", skip_all))]
+pub fn apply_rewrites<L: Language, N: Analysis<L>>(eg: &mut EGraph<L, N>, rewrites: &[Rewrite<L, N>]) -> bool {
+    let prog = eg.progress();
+
     let ts: Vec<Box<dyn Any>> = rewrites.iter().map(|rw| (*rw.searcher)(eg)).collect();
     for (rw, t) in rewrites.iter().zip(ts.into_iter()) {
         (*rw.applier)(t, eg);
     }
+
+    prog != eg.progress()
 }
 
 impl<L: Language + 'static, N: Analysis<L> + 'static> Rewrite<L, N> {
@@ -76,5 +82,36 @@ impl<L: Language + 'static, N: Analysis<L> + 'static> Rewrite<L, N> {
                 }
             }),
         }.into()
+    }
+}
+
+
+#[derive(PartialEq, Eq)]
+/// A Progress Measure to check saturation of an e-graph with.
+pub struct ProgressMeasure {
+    /// How many classes that were allocated in this e-graph. This measure is strictly growing.
+    pub number_of_classes: usize,
+
+    /// How many classes are still "live". If "number_of_classes" isn't changed, this can only decrease (by union).
+    pub number_of_live_classes: usize,
+
+    /// How many parameter-slots are still in the e-classes. If number_of_classes & number_of_live_classes isn't changed, this can only decrease (by proving a redundancy by union).
+    pub sum_of_slots: usize,
+
+    /// How many symmetries the egraphs knows. If number_of_classes & number_of_live_classes & sum_of_slots isn't changed, this can only increase (by proving a symmetry by union).
+    pub sum_of_symmetries: usize,
+
+}
+
+impl<L: Language, N: Analysis<L>> EGraph<L, N> {
+    /// Computes the [ProgressMeasure] of this E-Graph.
+    pub fn progress(&self) -> ProgressMeasure {
+        let ids = self.ids();
+        ProgressMeasure {
+            number_of_classes: self.classes.len(),
+            number_of_live_classes: ids.len(),
+            sum_of_symmetries: ids.iter().map(|x| self.classes[x].group.count()).sum(),
+            sum_of_slots: ids.iter().map(|x| self.slots(*x).len()).sum(),
+        }
     }
 }

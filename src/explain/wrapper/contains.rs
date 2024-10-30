@@ -67,7 +67,9 @@ impl<L: Language, N: Analysis<L>> EGraph<L, N> {
             node: self.chain_pn_map(&start.node, f),
             pai: start.pai.clone(),
         };
-        self.check_pc(&out);
+        if CHECKS {
+            self.check_pc(&out);
+        }
         out
     }
 
@@ -83,7 +85,9 @@ impl<L: Language, N: Analysis<L>> EGraph<L, N> {
     fn match_pcs(&self, a: &ProvenContains<L>, b: &ProvenContains<L>) -> (ProvenContains<L>, ProvenContains<L>) {
         let (sh1, bij1) = a.node.elem.weak_shape();
         let (sh2, bij2) = b.node.elem.weak_shape();
-        assert_eq!(&sh1, &sh2);
+        if CHECKS {
+            assert_eq!(&sh1, &sh2);
+        }
 
         // bij1 :: SHAPE -> A
         // bij2 :: SHAPE -> B
@@ -111,19 +115,25 @@ impl<L: Language, N: Analysis<L>> EGraph<L, N> {
     }
 
     pub(crate) fn pc_congruence(&self, a: &ProvenContains<L>, b: &ProvenContains<L>) -> (AppliedId, AppliedId, ProvenEq) {
-        self.check_pc(a);
-        self.check_pc(b);
+        if CHECKS {
+            self.check_pc(a);
+            self.check_pc(b);
+        }
 
         let (a, b) = self.match_pcs(a, b);
 
-        self.check_pc(&a);
-        self.check_pc(&b);
+        if CHECKS {
+            self.check_pc(&a);
+            self.check_pc(&b);
+        }
 
         let prf = ghost!({
             let prf_a = &*a.node.proofs;
             let prf_b = &*b.node.proofs;
 
-            assert_eq!(prf_a.len(), prf_b.len());
+            if CHECKS {
+                assert_eq!(prf_a.len(), prf_b.len());
+            }
             let n = prf_a.len();
 
             let mut vec = Vec::new();

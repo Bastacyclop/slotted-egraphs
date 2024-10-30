@@ -78,7 +78,9 @@ impl<L: Language, N: Analysis<L>> EGraph<L, N> {
         let _ = c;
 
         let restrict_proven = |proven_perm: ProvenPerm| {
-            proven_perm.check();
+            if CHECKS {
+                proven_perm.check();
+            }
 
             let perm = proven_perm.elem.into_iter()
                 .filter(|(x, _)| cap.contains(x))
@@ -93,19 +95,24 @@ impl<L: Language, N: Analysis<L>> EGraph<L, N> {
                 #[cfg(feature = "explanations")]
                 reg: self.proof_registry.clone()
             };
-            out.check();
+            if CHECKS {
+                out.check();
+            }
             out
         };
 
         let generators = generators.into_iter().map(restrict_proven).collect();
         let identity = ProvenPerm::identity(id, &cap, syn_slots, self.proof_registry.clone());
-        identity.check();
+        if CHECKS {
+            identity.check();
+        }
         let c = self.classes.get_mut(&id).unwrap();
         c.group = Group::new(&identity, generators);
 
         self.touched_class(from.id);
     }
 
+    #[cfg_attr(feature = "trace", instrument(level = "trace", skip_all))]
     pub(crate) fn rebuild(&mut self) {
         if CHECKS { self.check(); }
         while let Some(sh) = self.pending.iter().cloned().next() {
@@ -211,9 +218,9 @@ impl<L: Language, N: Analysis<L>> EGraph<L, N> {
             };
             let (weak2, bij2) = pc2.node.elem.weak_shape();
             if weak == weak2 {
-                self.check_pc(&pc1);
-                self.check_pc(&pc2);
-                assert_eq!(pc1.target_id(), pc2.target_id());
+                if CHECKS { self.check_pc(&pc1); }
+                if CHECKS { self.check_pc(&pc2); }
+                if CHECKS { assert_eq!(pc1.target_id(), pc2.target_id()); }
                 let (a, b, proof) = self.pc_congruence(&pc1, &pc2);
 
                 // or is it the opposite direction? (flip a with b)
@@ -233,7 +240,9 @@ impl<L: Language, N: Analysis<L>> EGraph<L, N> {
                     proven_perm.check();
                 }
                 let grp = &mut self.classes.get_mut(&i).unwrap().group;
-                grp.add(proven_perm);
+                if grp.add(proven_perm) {
+                    self.touched_class(i);
+                }
             }
         }
     }

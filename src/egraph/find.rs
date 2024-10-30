@@ -27,7 +27,7 @@ impl<L: Language, N: Analysis<L>> EGraph<L, N> {
             assert_eq!(pai.elem.id, pai.proof.r.id);
         }
 
-        let mut lock = self.unionfind.try_lock().unwrap();
+        let mut lock = self.unionfind.borrow_mut();
         if lock.len() == i.0 {
             lock.push(pai);
         } else {
@@ -36,7 +36,7 @@ impl<L: Language, N: Analysis<L>> EGraph<L, N> {
     }
 
     pub(crate) fn proven_unionfind_get(&self, i: Id) -> ProvenAppliedId {
-        let mut map = self.unionfind.try_lock().unwrap();
+        let mut map = self.unionfind.borrow_mut();
         self.unionfind_get_impl(i, &mut *map)
     }
 
@@ -44,8 +44,14 @@ impl<L: Language, N: Analysis<L>> EGraph<L, N> {
         self.proven_unionfind_get(i).elem
     }
 
+    /// Returns whether an id is still alive, or whether it was merged into another class.
+    pub fn is_alive(&self, i: Id) -> bool {
+        let map = self.unionfind.borrow();
+        map[i.0].elem.id == i
+    }
+
     pub(crate) fn unionfind_iter(&self) -> impl Iterator<Item=(Id, AppliedId)> {
-        let mut map = self.unionfind.try_lock().unwrap();
+        let mut map = self.unionfind.borrow_mut();
         let mut out = Vec::new();
 
         for x in (0..map.len()).map(Id) {
@@ -57,7 +63,7 @@ impl<L: Language, N: Analysis<L>> EGraph<L, N> {
     }
 
     pub(crate) fn unionfind_len(&self) -> usize {
-        self.unionfind.try_lock().unwrap().len()
+        self.unionfind.borrow().len()
     }
 
     pub(crate) fn find_enode(&self, enode: &L) -> L {
@@ -72,6 +78,7 @@ impl<L: Language, N: Analysis<L>> EGraph<L, N> {
     pub(crate) fn proven_proven_find_enode(&self, enode: &ProvenNode<L>) -> ProvenNode<L> {
         self.chain_pn_map(enode, |_, pai| self.proven_proven_find_applied_id(&pai))
     }
+
 
     // normalize i.id
     //
@@ -93,7 +100,9 @@ impl<L: Language, N: Analysis<L>> EGraph<L, N> {
     }
 
     pub(crate) fn proven_proven_find_applied_id(&self, pai: &ProvenAppliedId) -> ProvenAppliedId {
-        self.check_pai(&pai);
+        if CHECKS {
+            self.check_pai(&pai);
+        }
 
         let mut pai2 = self.proven_unionfind_get(pai.elem.id);
 
@@ -102,7 +111,9 @@ impl<L: Language, N: Analysis<L>> EGraph<L, N> {
         #[cfg(feature = "explanations")]
         { pai2.proof = prove_transitivity(pai.proof.clone(), pai2.proof, &self.proof_registry); }
 
-        self.check_pai(&pai);
+        if CHECKS {
+            self.check_pai(&pai);
+        }
 
         pai2
     }
@@ -110,4 +121,14 @@ impl<L: Language, N: Analysis<L>> EGraph<L, N> {
     pub(crate) fn find_id(&self, i: Id) -> Id {
         self.unionfind_get(i).id
     }
+
+    pub fn ids(&self) -> Vec<Id> {
+        let map = self.unionfind.borrow();
+        (0..map.len())
+            .map(Id)
+            .filter(|x| map[x.0].elem.id == *x)
+            .collect()
+    }
+
+
 }

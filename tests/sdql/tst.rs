@@ -22,7 +22,7 @@ pub fn check_generic(input: &str, s2: &str, debug: bool) {
     }
 
     // apply_rewrites(&mut eg, &rewrites);
-    let term = extract::<_, _, SdqlCost>(id1.clone(), &eg);
+    let term = extract::<_, _, SdqlCost>(&id1.clone(), &eg);
     let actual = term.to_string();
     if debug {
     	// eprintln!("{}", input);

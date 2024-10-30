@@ -61,7 +61,9 @@ impl<L: Language> AsRef<[RecExpr<L>]> for RecExpr<L> {
 impl AppliedId {
     pub fn new(id: Id, m: SlotMap) -> Self {
         let s = AppliedId { id, m };
-        s.check();
+        if CHECKS {
+            s.check();
+        }
         s
     }
 
