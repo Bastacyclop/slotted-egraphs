@@ -1,7 +1,15 @@
 use crate::*;
 use std::fs;
 
-pub fn is_same<L: Language>(s1: &str, s2: &str, eg: &mut EGraph<L>) -> bool {
+pub fn id<L: Language, A: Analysis<L>>(s: &str, eg: &mut EGraph<L, A>) -> AppliedId {
+    // eg.check();
+    let re = RecExpr::parse(s).unwrap();
+    let out = eg.add_syn_expr(re.clone());
+    // eg.check();
+    out
+}
+
+pub fn is_same<L: Language, A: Analysis<L>>(s1: &str, s2: &str, eg: &mut EGraph<L, A>) -> bool {
     let s1i = id(s1, eg);
     let s2i = id(s2, eg);
     return eg.eq(&s1i, &s2i);
@@ -11,7 +19,7 @@ pub fn check_generic(input: &str, s2: &str, debug: bool) {
 	let re: RecExpr<Sdql> = RecExpr::parse(input).unwrap();
     let rewrites = sdql_rules();
 
-    let mut eg = EGraph::new();
+    let mut eg = EGraph::<Sdql, SdqlKind>::new();
 
     let id1 = eg.add_syn_expr(re.clone());
 
@@ -28,7 +36,7 @@ pub fn check_generic(input: &str, s2: &str, debug: bool) {
     	// eprintln!("{}", input);
     	eprintln!("Expected:{}", s2);
     	eprintln!("Actual:  {}", actual);
-    	// eprintln!("{}", SdqlCost.cost_rec(&term))
+    	eprintln!("Cost: {}", SdqlCost.cost_rec(&term))
     }
     assert!(is_same(&actual, s2, &mut eg));
 }
@@ -37,11 +45,19 @@ pub fn check(input: &str, s2: &str) {
 	check_generic(input, s2, false)
 }
 
-pub fn check_file(input_path: &str, expected_path: &str) {
+pub fn check_file_generic(input_path: &str, expected_path: &str, debug: bool) {
 	let folder = "tests/sdql/progs";
 	let input = fs::read_to_string(format!("{folder}/{input_path}.sexp")).expect("Unable to read file");
 	let expected = fs::read_to_string(format!("{folder}/{expected_path}.sexp")).expect("Unable to read file");
-	check_generic(&input, &expected, false)
+	check_generic(&input, &expected, debug);
+}
+
+pub fn check_file(input_path: &str, expected_path: &str) {
+	check_file_generic(input_path, expected_path, false);
+}
+
+pub fn check_file_debug(input_path: &str, expected_path: &str) {
+	check_file_generic(input_path, expected_path, true);
 }
 
 pub fn check_debug(input: &str, s2: &str) {
