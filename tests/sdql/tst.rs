@@ -24,7 +24,15 @@ fn is_alpha_equiv(s1: &str, s2: &str) -> bool {
     return eg.eq(&i1, &i2);
 }
 
-pub fn check_generic(input: &str, s2: &str, debug: bool) {
+fn get_cost(re: RecExpr<Sdql>) -> usize {
+	let mut eg: EGraph<Sdql, SdqlKind> = EGraph::new();
+	let id = eg.add_syn_expr(re);
+	let cost_func = SdqlCost { egraph: &eg };
+    let extractor = Extractor::<_, SdqlCost>::new(&eg, cost_func);
+    return extractor.get_best_cost(&id.clone(), &eg);
+}
+
+pub fn check_generic(input: &str, expected: &str, debug: bool) {
 	let re: RecExpr<Sdql> = RecExpr::parse(input).unwrap();
     let rewrites = sdql_rules();
 
@@ -44,13 +52,17 @@ pub fn check_generic(input: &str, s2: &str, debug: bool) {
     let term = extractor.extract(&id1.clone(), &eg);
     let actual = term.to_string();
     if debug {
-    	// eprintln!("{}", input);
-    	eprintln!("Expected:{}", s2);
+    	eprintln!("Initial: {}", re.to_string());
+    	eprintln!("Expected:{}", expected);
     	eprintln!("Actual:  {}", actual);
-    	// eprintln!("Cost: {}", extractor.get_best_cost(&id1.clone(), &eg))
+    	eprintln!("Init Cost:  {}", get_cost(re));
+    	eprintln!("Expc. Cost: {}", get_cost(RecExpr::parse(expected).unwrap()));
+    	eprintln!("Final Cost: {}", get_cost(term));
+    	eprintln!("Final Cost2:{}", extractor.get_best_cost(&id1.clone(), &eg));
+    	
     }
     // assert!(is_same(&actual, s2, &mut eg));
-    assert!(is_alpha_equiv(&actual, s2));
+    assert!(is_alpha_equiv(&actual, expected));
 }
 
 pub fn check(input: &str, s2: &str) {
@@ -101,7 +113,7 @@ fn blow2() {
 fn blow3() {
 	check("(lambda $a
 	(let $x (binop op1 (var $a) (var $a)) (binop op2 (var $x) (var $a)))
-)", "(lambda $var_1 (binop op2 (binop op1 (var $var_1) (var $var_1)) (var $var_1)))")
+)", "(lambda $var_01 (let $var_02 (binop op1 (var $var_01) (var $var_01)) (binop op2 (var $var_02) (var $var_01))))")
 }
 
 #[test]
@@ -230,7 +242,18 @@ fn ttm_v0() {
 	check_file("ttm_v0", "ttm_v0_esat")
 }
 
+// #[test]
+// fn cost_test() {
+// 	check_file_debug("cost_test", "cost_test_esat")
+// }
+
 #[test]
 fn mmm_sum_v7_csc_csr_unfused() {
-	check_file_debug("mmm_sum_v7_csc_csr_unfused", "mmm_sum_v7_csc_csr_unfused_esat")
+	check_file("mmm_sum_v7_csc_csr_unfused", "mmm_sum_v7_csc_csr_unfused_esat")
+}
+
+
+#[test]
+fn mmm_v7_csr_csr_unfused() {
+	check_file("mmm_v7_csr_csr_unfused", "mmm_v7_csr_csr_unfused_esat")
 }

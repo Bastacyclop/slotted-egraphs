@@ -35,7 +35,7 @@ impl<'a> CostFunction<Sdql> for SdqlCost<'a> {
         for x in enode.applied_id_occurences() {
             is_infinity = is_infinity || (costs(x.id) == infinity);
         }
-        if is_infinity || op_cost == infinity {
+        if is_infinity {
             return infinity;
         }
         match enode {

@@ -17,7 +17,7 @@ impl Analysis<Sdql> for SdqlKind {
             mightBeBool: false,
         };
         match enode {
-            /*Sdql::SubArray(..) |*/ Sdql::Range(..) => {
+            Sdql::SubArray(..) | Sdql::Range(..) => {
                 out.mightBeVector = true;
             }
             Sdql::Equality(..) => {
@@ -29,6 +29,9 @@ impl Analysis<Sdql> for SdqlKind {
             Sdql::Sing(..) => {
                 out.mightBeDict = true;
             }
+            // Sdql::Sum(_, _, _, body) => {
+            //     out = eg.analysis_data(body.id).clone();
+            // }
             _ => {},
         }
         out
