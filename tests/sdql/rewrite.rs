@@ -22,6 +22,58 @@ fn add_zero() -> SdqlRewrite {
 fn sub_zero() -> SdqlRewrite {
     Rewrite::new("sub-zero", "(- ?e 0)", "?e")
 }
+// rw!("eq-comm"; "(== ?a ?b)" => "(== ?b ?a)"),
+fn eq_comm() -> SdqlRewrite {
+    Rewrite::new("eq-comm", "(eq ?a ?b)", "(eq ?b ?a)")
+}
+// rw!("mult-app1"; "(* ?a ?b)" => "(binop mult ?a ?b)"),
+fn mult_app1() -> SdqlRewrite {
+    Rewrite::new("mult-app1", "(* ?a ?b)", "(binop mult ?a ?b)")
+}
+// rw!("mult-app2"; "(binop mult ?a ?b)" => "(* ?a ?b)"),
+fn mult_app2() -> SdqlRewrite {
+    Rewrite::new("mult-app2", "(binop mult ?a ?b)", "(* ?a ?b)")
+}
+// rw!("add-app1"; "(+ ?a ?b)" => "(binop add ?a ?b)"),
+fn add_app1() -> SdqlRewrite {
+    Rewrite::new("add-app1", "(+ ?a ?b)", "(binop add ?a ?b)")
+}
+// rw!("add-app2"; "(binop add ?a ?b)" => "(+ ?a ?b)"),
+fn add_app2() -> SdqlRewrite {
+    Rewrite::new("add-app2", "(binop add ?a ?b)", "(+ ?a ?b)")
+}
+// rw!("sub-app1"; "(- ?a ?b)" => "(binop sub ?a ?b)"),
+fn sub_app1() -> SdqlRewrite {
+    Rewrite::new("sub-app1", "(- ?a ?b)", "(binop sub ?a ?b)")
+}
+// rw!("sub-app2"; "(binop sub ?a ?b)" => "(- ?a ?b)"),
+fn sub_app2() -> SdqlRewrite {
+    Rewrite::new("sub-app2", "(binop sub ?a ?b)", "(- ?a ?b)")
+}
+// rw!("get-app1"; "(get ?a ?b)" => "(binop getf ?a ?b)"),
+fn get_app1() -> SdqlRewrite {
+    Rewrite::new("get-app1", "(get ?a ?b)", "(binop getf ?a ?b)")
+}
+// rw!("get-app2"; "(binop getf ?a ?b)" => "(get ?a ?b)"),
+fn get_app2() -> SdqlRewrite {
+    Rewrite::new("get-app2", "(binop getf ?a ?b)", "(get ?a ?b)")
+}
+// rw!("sing-app1"; "(sing ?a ?b)" => "(binop singf ?a ?b)"),
+fn sing_app1() -> SdqlRewrite {
+    Rewrite::new("sing-app1", "(sing ?a ?b)", "(binop singf ?a ?b)")
+}
+// rw!("sing-app2"; "(binop singf ?a ?b)" => "(sing ?a ?b)"),
+fn sing_app2() -> SdqlRewrite {
+    Rewrite::new("sing-app2", "(binop singf ?a ?b)", "(sing ?a ?b)")
+}
+// rw!("unique-app1"; "(unique ?a)" => "(apply uniquef ?a)"),
+fn unique_app1() -> SdqlRewrite {
+    Rewrite::new("unique-app1", "(unique ?a)", "(apply uniquef ?a)")
+}
+// rw!("unique-app2"; "(apply uniquef ?a)" => "(unique ?a)"),
+fn unique_app2() -> SdqlRewrite {
+    Rewrite::new("unique-app2", "(apply uniquef ?a)", "(unique ?a)")
+}
 
 fn beta() -> SdqlRewrite {
     Rewrite::new("beta", "(let $x ?t ?body)", "?body[(var $x) := ?t]")
@@ -146,6 +198,9 @@ pub fn sdql_rules() -> Vec<SdqlRewrite> {
 
     vec![
       mult_assoc1(), mult_assoc2(), sub_identity(), add_zero(), sub_zero(),
+      eq_comm(),
+      mult_app1(), mult_app2(), add_app1(), add_app2(), sub_app1(), sub_app2(), 
+      get_app1(), get_app2(), sing_app1(), sing_app2(), unique_app1(), unique_app2(),
       beta(), 
       sum_fact_1(), sum_fact_2(), sum_fact_3(),
       sum_sum_vert_fuse_1(),
