@@ -20,10 +20,10 @@ impl<'a> CostFunction<Sdql> for SdqlCost<'a> {
         let let_coef = 10;
         let infinity = usize::MAX / 1000;
         let op_cost = match enode {
-            Sdql::Get(_, _) => 20,
-            Sdql::Let(rng, _, _) => let_coef,
-            Sdql::Sing(_, _) => 50,
-            Sdql::App(_, _) |
+            Sdql::Get(..) => 20,
+            Sdql::Let(..) => let_coef,
+            Sdql::Sing(..) => 50,
+            Sdql::App(..) |
             Sdql::Binop(..) => 
               infinity,
             Sdql::Var(_) => var_access,
@@ -31,6 +31,13 @@ impl<'a> CostFunction<Sdql> for SdqlCost<'a> {
             Sdql::Unique(_) => 0,
             _ => 1
         };
+        let mut is_infinity = op_cost == infinity;
+        for x in enode.applied_id_occurences() {
+            is_infinity = is_infinity || (costs(x.id) == infinity);
+        }
+        if is_infinity || op_cost == infinity {
+            return infinity;
+        }
         match enode {
             Sdql::Sum(_, _, range, body) =>
                 costs(range.id) +
@@ -38,9 +45,26 @@ impl<'a> CostFunction<Sdql> for SdqlCost<'a> {
                         sum_vector_coef 
                     } else { 
                         sum_dict_coef 
-                    }) * (
-                    costs(body.id) + 1)
+                    }) * (1 + costs(body.id))
                 ,
+            Sdql::Merge(_, _, _, range1, range2, body) =>
+                costs(range1.id) + costs(range2.id) +
+                    (if(self.egraph.analysis_data(range1.id).mightBeVector &&
+                        self.egraph.analysis_data(range2.id).mightBeVector) {  
+                        sum_vector_coef 
+                    } else { 
+                        sum_dict_coef 
+                    }) * (1 + costs(body.id))
+                ,
+            Sdql::Mult(e1, e2) if self.egraph.analysis_data(e1.id).mightBeBool || self.egraph.analysis_data(e2.id).mightBeBool =>
+                infinity,
+            Sdql::Mult(e1, e2) if self.egraph.analysis_data(e1.id).mightBeDict || self.egraph.analysis_data(e2.id).mightBeDict => {
+                let mut s = sum_dict_coef;
+                for x in enode.applied_id_occurences() {
+                    s += costs(x.id);
+                }
+                s
+            },
             _ => {
                 let mut s = op_cost;
                 for x in enode.applied_id_occurences() {
@@ -49,18 +73,5 @@ impl<'a> CostFunction<Sdql> for SdqlCost<'a> {
                 s
             }
         }
-        // let is_infinity = enode.any(|id| costs(id) == infinity);
-        // if is_infinity || op_cost == infinity {
-        //     return infinity;
-        // }
-        // if let Sdql::Let(..) = enode {
-        //     MyCost::Infinite
-        // } else {
-        //     let mut s = MyCost::Finite(1);
-        //     for x in enode.applied_id_occurences() {
-        //         s = s.add(&costs(x.id));
-        //     }
-        //     s
-        // }
     }
 }
