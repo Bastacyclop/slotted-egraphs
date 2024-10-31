@@ -75,6 +75,36 @@ fn unique_app2() -> SdqlRewrite {
     Rewrite::new("unique-app2", "(apply uniquef ?a)", "(unique ?a)")
 }
 
+// rw!("let-binop3"; "(let ?e1 (binop ?f ?e2 ?e3))" => "(binop ?f (let ?e1 ?e2) (let ?e1 ?e3))"),
+fn let_binop3() -> SdqlRewrite {    
+    Rewrite::new("let-binop3", "(let $x ?e1 (binop ?f ?e2 ?e3))", "(binop ?f (let $x ?e1 ?e2) (let $x ?e1 ?e3))")
+}
+// rw!("let-binop4"; "(binop ?f (let ?e1 ?e2) (let ?e1 ?e3))" => "(let ?e1 (binop ?f ?e2 ?e3))"),
+fn let_binop4() -> SdqlRewrite {    
+    Rewrite::new("let-binop4", "(binop ?f (let $x ?e1 ?e2) (let $x ?e1 ?e3))", "(let $x ?e1 (binop ?f ?e2 ?e3))")
+}
+// rw!("let-apply1"; "(let ?e1 (apply ?e2 ?e3))" => "(apply ?e2 (let ?e1 ?e3))"),
+fn let_apply1() -> SdqlRewrite {    
+    Rewrite::new("let-apply1", "(let $x ?e1 (apply ?e2 ?e3))", "(apply ?e2 (let $x ?e1 ?e3))")
+}
+// rw!("let-apply2"; "(apply ?e2 (let ?e1 ?e3))" => "(let ?e1 (apply ?e2 ?e3))"),
+fn let_apply2() -> SdqlRewrite {    
+    Rewrite::new("let-apply2", "(apply ?e2 (let $x ?e1 ?e3))", "(let $x ?e1 (apply ?e2 ?e3))")
+}
+
+// rw!("if-mult2"; "(* ?e1 (ifthen ?e2 ?e3))" => "(ifthen ?e2 (* ?e1 ?e3))"),
+fn if_mult2() -> SdqlRewrite {
+    Rewrite::new("if-mult2", "(* ?e1 (ifthen ?e2 ?e3))", "(ifthen ?e2 (* ?e1 ?e3))")
+}
+// rw!("if-to-mult"; "(ifthen ?e1 ?e2)" => "(* ?e1 ?e2)"),
+fn if_to_mult() -> SdqlRewrite {
+    Rewrite::new("if-to-mult", "(ifthen ?e1 ?e2)", "(* ?e1 ?e2)")
+}
+// rw!("mult-to-if"; "(* (== ?e1_1 ?e1_2) ?e2)" => "(ifthen (== ?e1_1 ?e1_2) ?e2)"),
+fn mult_to_if() -> SdqlRewrite {
+    Rewrite::new("mult-to-if", "(* (eq ?e1_1 ?e1_2) ?e2)", "(ifthen (eq ?e1_1 ?e1_2) ?e2)")
+}
+
 fn beta() -> SdqlRewrite {
     Rewrite::new("beta", "(let $x ?t ?body)", "?body[(var $x) := ?t]")
 }
@@ -118,6 +148,34 @@ fn sum_fact_3() -> SdqlRewrite {
     })
 }
 
+// rw!("sing-mult-1"; "(sing ?e1 (* ?e2 ?e3))" => "(* (sing ?e1 ?e2) ?e3)"),
+fn sing_mult_1() -> SdqlRewrite {
+    Rewrite::new("sing-mult-1", "(sing ?e1 (* ?e2 ?e3))", "(* (sing ?e1 ?e2) ?e3)")
+}
+
+// rw!("sing-mult-2"; "(sing ?e1 (* ?e2 ?e3))" => "(* ?e2 (sing ?e1 ?e3))"),
+fn sing_mult_2() -> SdqlRewrite {
+    Rewrite::new("sing-mult-2", "(sing ?e1 (* ?e2 ?e3))", "(* ?e2 (sing ?e1 ?e3))")
+}
+
+// rw!("sing-mult-3"; "(* (sing ?e1 ?e2) ?e3)" => "(sing ?e1 (* ?e2 ?e3))"),
+fn sing_mult_3() -> SdqlRewrite {
+    Rewrite::new("sing-mult-3", "(* (sing ?e1 ?e2) ?e3)", "(sing ?e1 (* ?e2 ?e3))")
+}
+
+// rw!("sing-mult-4"; "(* ?e2 (sing ?e1 ?e3))" => "(sing ?e1 (* ?e2 ?e3))"),
+fn sing_mult_4() -> SdqlRewrite {
+    Rewrite::new("sing-mult-4", "(* ?e2 (sing ?e1 ?e3))", "(sing ?e1 (* ?e2 ?e3))")
+}
+
+// rw!("sum-fact-inv-1";  "(* ?e1 (sum ?R ?e2))"        => 
+//     { with_shifted_double_up(var("?e1"), var("?e1u"), 0, 
+//         "(sum ?R (* ?e1u ?e2))".parse::<Pattern<SDQL>>().unwrap()
+//     )}),
+fn sum_fact_inv_1() -> SdqlRewrite {
+    Rewrite::new("sum-fact-inv-1", "(* ?e1 (sum $k $v ?R ?e2))", "(sum $k $v ?R (* ?e1 ?e2))")
+}
+
 // rw!("sum-sum-vert-fuse-1";  "(sum (sum ?R (sing %1 ?body1)) ?body2)"        => 
 //     { with_shifted_up(var("?body1"), var("?body1u"), 0,
 //       with_shifted_double_up(var("?body2"), var("?body2u"), 2,
@@ -153,24 +211,26 @@ fn get_sum_vert_fuse_1() -> SdqlRewrite {
     Rewrite::new("get-sum-vert-fuse-1", pat, outpat)
 }
 
-// rw!("sing-mult-1"; "(sing ?e1 (* ?e2 ?e3))" => "(* (sing ?e1 ?e2) ?e3)"),
-fn sing_mult_1() -> SdqlRewrite {
-    Rewrite::new("sing-mult-1", "(sing ?e1 (* ?e2 ?e3))", "(* (sing ?e1 ?e2) ?e3)")
+// rw!("sum-range-1";  "(sum (range ?st ?en) (ifthen (== %0 ?key) ?body))" => 
+//   { with_shifted_up(var("?st"), var("?stu"), 0,
+//     "(sum (range ?st ?en) (ifthen (== %1 (- ?key (- ?stu 1))) ?body))".parse::<Pattern<SDQL>>().unwrap()
+// )}),
+fn sum_range_1() -> SdqlRewrite {
+    Rewrite::new("sum-range-1", 
+        "(sum $k $v (range ?st ?en) (ifthen (eq (var $v) ?key) ?body))",
+        "(sum $k $v (range ?st ?en) (ifthen (eq (var $k) (- ?key (- ?st 1))) ?body))")
 }
 
-// rw!("sing-mult-2"; "(sing ?e1 (* ?e2 ?e3))" => "(* ?e2 (sing ?e1 ?e3))"),
-fn sing_mult_2() -> SdqlRewrite {
-    Rewrite::new("sing-mult-2", "(sing ?e1 (* ?e2 ?e3))", "(* ?e2 (sing ?e1 ?e3))")
-}
-
-// rw!("sing-mult-3"; "(* (sing ?e1 ?e2) ?e3)" => "(sing ?e1 (* ?e2 ?e3))"),
-fn sing_mult_3() -> SdqlRewrite {
-    Rewrite::new("sing-mult-3", "(* (sing ?e1 ?e2) ?e3)", "(sing ?e1 (* ?e2 ?e3))")
-}
-
-// rw!("sing-mult-4"; "(* ?e2 (sing ?e1 ?e3))" => "(sing ?e1 (* ?e2 ?e3))"),
-fn sing_mult_4() -> SdqlRewrite {
-    Rewrite::new("sing-mult-4", "(* ?e2 (sing ?e1 ?e3))", "(sing ?e1 (* ?e2 ?e3))")
+// rw!("sum-range-2";  "(sum (range ?st ?en) (ifthen (== %1 ?key) ?body))"        => 
+//   { with_shifted_double_down(var("?key"), var("?keyd"), 2,
+//     with_shifted_up(var("?st"), var("?stu"), 0,
+//     "(let ?keyd (let (+ %0 (- ?stu 1)) ?body))".parse::<Pattern<SDQL>>().unwrap()
+// ))})
+fn sum_range_2() -> SdqlRewrite {
+    Rewrite::new("sum-range-2", 
+        "(sum $k $v (range ?st ?en) (ifthen (eq (var $k) ?key) ?body))",
+        "(let $k ?key (let $v (+ (var $k) (- ?stu 1)) ?body))")
+    // TODO requires a check for ?key to be invariant to the loop
 }
 
 // rw!("sum-merge";  "(sum ?R (sum ?S (ifthen (== %2 %0) ?body)))"        => 
@@ -181,6 +241,16 @@ fn sum_merge() -> SdqlRewrite {
     Rewrite::new("sum-merge", 
         "(sum $k1 $v1 ?R (sum $k2 $v2 ?S (ifthen (eq (var $v1) (var $v2)) ?body)))", 
         "(merge $k1 $k2 $v1 ?R ?S (let $v2 (var $v1) ?body))")
+}
+
+// rw!("get-to-sum";  "(get ?dict ?key)"        => 
+//     { with_shifted_double_up(var("?key"), var("?keyu"), 0,
+//         "(sum ?dict (ifthen (== %1 ?keyu) %0))".parse::<Pattern<SDQL>>().unwrap()
+//     )}),
+fn get_to_sum() -> SdqlRewrite {
+    Rewrite::new("get-to-sum", 
+        "(get ?dict ?key)", 
+        "(sum $k $v ?dict (ifthen (eq (var $k) ?key) (var $v)))")
 }
 
 // rw!("sum-sing";    "(sum ?e1 (sing %1 %0))" => "?e1"),
@@ -201,13 +271,18 @@ pub fn sdql_rules() -> Vec<SdqlRewrite> {
       eq_comm(),
       mult_app1(), mult_app2(), add_app1(), add_app2(), sub_app1(), sub_app2(), 
       get_app1(), get_app2(), sing_app1(), sing_app2(), unique_app1(), unique_app2(),
+      let_binop3(), let_binop4(), let_apply1(), let_apply2(),
+      if_mult2(), if_to_mult(), mult_to_if(),
       beta(), 
       sum_fact_1(), sum_fact_2(), sum_fact_3(),
+      sing_mult_1(), sing_mult_2(), sing_mult_3(), sing_mult_4(),
+      sum_fact_inv_1(),
       sum_sum_vert_fuse_1(),
       sum_sum_vert_fuse_2(),
       get_sum_vert_fuse_1(),
-      sing_mult_1(), sing_mult_2(), sing_mult_3(), sing_mult_4(),
+      sum_range_1(), sum_range_2(),
       sum_merge(),
+      get_to_sum(),
       sum_sing(), unique_rm()
       ]
 }
