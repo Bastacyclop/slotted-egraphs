@@ -15,6 +15,15 @@ pub fn is_same<L: Language, A: Analysis<L>>(s1: &str, s2: &str, eg: &mut EGraph<
     return eg.eq(&s1i, &s2i);
 }
 
+fn is_alpha_equiv(s1: &str, s2: &str) -> bool {
+    let mut eg: EGraph<Sdql, SdqlKind> = EGraph::new(); // a fresh e-graph knowing zero equations.
+    let t1 = RecExpr::parse(s1).unwrap();
+    let t2 = RecExpr::parse(s2).unwrap();
+    let i1 = eg.add_syn_expr(t1);
+    let i2 = eg.add_syn_expr(t2);
+    return eg.eq(&i1, &i2);
+}
+
 pub fn check_generic(input: &str, s2: &str, debug: bool) {
 	let re: RecExpr<Sdql> = RecExpr::parse(input).unwrap();
     let rewrites = sdql_rules();
@@ -40,7 +49,8 @@ pub fn check_generic(input: &str, s2: &str, debug: bool) {
     	eprintln!("Actual:  {}", actual);
     	// eprintln!("Cost: {}", extractor.get_best_cost(&id1.clone(), &eg))
     }
-    assert!(is_same(&actual, s2, &mut eg));
+    // assert!(is_same(&actual, s2, &mut eg));
+    assert!(is_alpha_equiv(&actual, s2));
 }
 
 pub fn check(input: &str, s2: &str) {
