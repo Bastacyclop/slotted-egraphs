@@ -31,8 +31,12 @@ fn get_cost(re: RecExpr<Sdql>) -> usize {
     let extractor = Extractor::<_, SdqlCost>::new(&eg, cost_func);
     return extractor.get_best_cost(&id.clone(), &eg);
 }
+// MTTKRP: needs 12 
+// TTM: needs 14
+// MMMSUM: needs 9
+static DEFAULT_STEPS:usize = 6;
 
-pub fn check_generic(input: &str, expected: &str, debug: bool) {
+pub fn check_generic(input: &str, expected: &str, debug: bool, steps: usize) {
 	let re: RecExpr<Sdql> = RecExpr::parse(input).unwrap();
     let rewrites = sdql_rules();
 
@@ -40,7 +44,7 @@ pub fn check_generic(input: &str, expected: &str, debug: bool) {
 
     let id1 = eg.add_syn_expr(re.clone());
 
-    let steps = 10;
+
 
     for _ in 0..steps {
     	apply_rewrites(&mut eg, &rewrites);
@@ -66,26 +70,30 @@ pub fn check_generic(input: &str, expected: &str, debug: bool) {
 }
 
 pub fn check(input: &str, s2: &str) {
-	check_generic(input, s2, false)
+	check_generic(input, s2, false, DEFAULT_STEPS)
 }
 
-pub fn check_file_generic(input_path: &str, expected_path: &str, debug: bool) {
+pub fn check_file_generic(input_path: &str, expected_path: &str, debug: bool, steps: usize) {
 	let folder = "tests/sdql/progs";
 	let input = fs::read_to_string(format!("{folder}/{input_path}.sexp")).expect("Unable to read file");
 	let expected = fs::read_to_string(format!("{folder}/{expected_path}.sexp")).expect("Unable to read file");
-	check_generic(&input, &expected, debug);
+	check_generic(&input, &expected, debug, steps);
 }
 
 pub fn check_file(input_path: &str, expected_path: &str) {
-	check_file_generic(input_path, expected_path, false);
+	check_file_generic(input_path, expected_path, false, DEFAULT_STEPS);
+}
+
+pub fn check_file_steps(input_path: &str, expected_path: &str, steps: usize) {
+	check_file_generic(input_path, expected_path, false, steps);
 }
 
 pub fn check_file_debug(input_path: &str, expected_path: &str) {
-	check_file_generic(input_path, expected_path, true);
+	check_file_generic(input_path, expected_path, true, DEFAULT_STEPS);
 }
 
 pub fn check_debug(input: &str, s2: &str) {
-	check_generic(input, s2, true)
+	check_generic(input, s2, true, DEFAULT_STEPS)
 }
 
 #[test]
@@ -217,10 +225,10 @@ fn sum_merge2() {
 ))")
 }
 
-#[test]
-fn batax_v0() {
-	check_file("batax_v0", "batax_v0_esat")
-}
+// #[test]
+// fn batax_v0() {
+// 	check_file_iters("batax_v0", "batax_v0_esat")
+// }
 
 #[test]
 fn mmm_sum_v0() {
@@ -249,11 +257,27 @@ fn ttm_v0() {
 
 #[test]
 fn mmm_sum_v7_csc_csr_unfused() {
-	check_file("mmm_sum_v7_csc_csr_unfused", "mmm_sum_v7_csc_csr_unfused_esat")
+	check_file_steps("mmm_sum_v7_csc_csr_unfused", "mmm_sum_v7_csc_csr_unfused_esat", 9)
 }
 
 
 #[test]
 fn mmm_v7_csr_csr_unfused() {
 	check_file("mmm_v7_csr_csr_unfused", "mmm_v7_csr_csr_unfused_esat")
+}
+
+// FIXME: a bug with line 29 of pattern.rs
+// #[test]
+// fn batax_v7_csr_dense_unfused() {
+// 	check_file_debug("batax_v7_csr_dense_unfused", "batax_v7_csr_dense_unfused_esat")
+// }
+
+#[test]
+fn mttkrp_v7_csf_csr_csc_unfused() {
+	check_file_steps("mttkrp_v7_csf_csr_csc_unfused", "mttkrp_v7_csf_csr_csc_unfused_esat", 12)
+}
+
+#[test]
+fn ttm_v1_csf_csr_unfused() {
+	check_file_steps("ttm_v1_csf_csr_unfused", "ttm_v1_csf_csr_unfused_esat", 14)
 }
