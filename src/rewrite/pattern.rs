@@ -12,6 +12,7 @@ pub enum Pattern<L: Language> {
 }
 
 // We write this as pattern[subst] for short.
+#[cfg_attr(feature = "trace", instrument(level = "trace", skip_all))]
 pub fn pattern_subst<L: Language, N: Analysis<L>>(eg: &mut EGraph<L, N>, pattern: &Pattern<L>, subst: &Subst) -> AppliedId {
     match &pattern {
         Pattern::ENode(n, children) => {
@@ -26,7 +27,9 @@ pub fn pattern_subst<L: Language, N: Analysis<L>>(eg: &mut EGraph<L, N>, pattern
             eg.add_syn(n)
         },
         Pattern::PVar(v) => {
-            subst[v].clone()
+            subst.get(v)
+                 .unwrap_or_else(|| panic!("encountered `?{v}` in pattern, but it is missing in the `subst`"))
+                 .clone()
         },
         Pattern::Subst(b, x, t) => {
             let b = pattern_subst(eg, &*b, subst);
