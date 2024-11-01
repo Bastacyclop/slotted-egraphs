@@ -225,10 +225,10 @@ fn sum_merge2() {
 ))")
 }
 
-// #[test]
-// fn batax_v0() {
-// 	check_file_iters("batax_v0", "batax_v0_esat")
-// }
+#[test]
+fn batax_v0() {
+	check_file("batax_v0", "batax_v0_esat")
+}
 
 #[test]
 fn mmm_sum_v0() {
@@ -266,10 +266,9 @@ fn mmm_v7_csr_csr_unfused() {
 	check_file("mmm_v7_csr_csr_unfused", "mmm_v7_csr_csr_unfused_esat")
 }
 
-// FIXME: a bug with line 29 of pattern.rs
 #[test]
 fn batax_v7_csr_dense_unfused() {
-	check_file_debug("batax_v7_csr_dense_unfused", "batax_v7_csr_dense_unfused_esat")
+	check_file_steps("batax_v7_csr_dense_unfused", "batax_v7_csr_dense_unfused_esat", 7)
 }
 
 #[test]
