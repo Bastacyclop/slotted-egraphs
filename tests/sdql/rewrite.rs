@@ -227,10 +227,13 @@ fn sum_range_1() -> SdqlRewrite {
 //     "(let ?keyd (let (+ %0 (- ?stu 1)) ?body))".parse::<Pattern<SDQL>>().unwrap()
 // ))})
 fn sum_range_2() -> SdqlRewrite {
-    Rewrite::new("sum-range-2", 
+    Rewrite::new_if("sum-range-2", 
         "(sum $k $v (range ?st ?en) (ifthen (eq (var $k) ?key) ?body))",
-        "(let $k ?key (let $v (+ (var $k) (- ?stu 1)) ?body))")
-    // TODO requires a check for ?key to be invariant to the loop
+        "(let $k ?key (let $v (+ (var $k) (- ?st 1)) ?body))", |subst| {
+        !subst["key"].slots().contains(&Slot::named("k"))
+        && !subst["key"].slots().contains(&Slot::named("v"))
+    })
+    // adds a check for ?key to be invariant to the loop
 }
 
 // rw!("sum-merge";  "(sum ?R (sum ?S (ifthen (== %2 %0) ?body)))"        => 

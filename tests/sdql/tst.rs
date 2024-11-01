@@ -267,10 +267,10 @@ fn mmm_v7_csr_csr_unfused() {
 }
 
 // FIXME: a bug with line 29 of pattern.rs
-// #[test]
-// fn batax_v7_csr_dense_unfused() {
-// 	check_file_debug("batax_v7_csr_dense_unfused", "batax_v7_csr_dense_unfused_esat")
-// }
+#[test]
+fn batax_v7_csr_dense_unfused() {
+	check_file_debug("batax_v7_csr_dense_unfused", "batax_v7_csr_dense_unfused_esat")
+}
 
 #[test]
 fn mttkrp_v7_csf_csr_csc_unfused() {
