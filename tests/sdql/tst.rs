@@ -68,7 +68,7 @@ pub fn check_generic(input: &str, expected: &str, debug: bool, steps: usize) {
 
 
 	// let csv_out = format!("profile_{input}.csv");
-	let csv_out = "profile.csv";
+	let csv_out = if debug { "profile.csv" } else { "out.csv" };
 	let mut csv_f = std::fs::File::create(csv_out).unwrap();
 	let start_time = Instant::now();
     for iteration in 0..steps {
@@ -114,7 +114,7 @@ pub fn check_file(input_path: &str, expected_path: &str) {
 }
 
 pub fn check_file_steps(input_path: &str, expected_path: &str, steps: usize) {
-	check_file_generic(input_path, expected_path, true, steps);
+	check_file_generic(input_path, expected_path, false, steps);
 }
 
 pub fn check_file_debug(input_path: &str, expected_path: &str) {
@@ -267,11 +267,6 @@ fn ttm_v0() {
 	check_file("ttm_v0", "ttm_v0_esat")
 }
 
-// #[test]
-// fn cost_test() {
-// 	check_file_debug("cost_test", "cost_test_esat")
-// }
-
 #[test]
 fn mmm_sum_v7_csc_csr_unfused() {
 	check_file_steps("mmm_sum_v7_csc_csr_unfused", "mmm_sum_v7_csc_csr_unfused_esat", 9)
@@ -280,7 +275,7 @@ fn mmm_sum_v7_csc_csr_unfused() {
 
 #[test]
 fn mmm_v7_csr_csr_unfused() {
-	check_file("mmm_v7_csr_csr_unfused", "mmm_v7_csr_csr_unfused_esat")
+	check_file_steps("mmm_v7_csr_csr_unfused", "mmm_v7_csr_csr_unfused_esat", 5)
 }
 
 #[test]
