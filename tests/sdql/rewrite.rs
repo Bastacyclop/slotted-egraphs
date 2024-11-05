@@ -116,7 +116,7 @@ fn sum_fact_1() -> SdqlRewrite {
     let pat = "(sum $x $y ?R (* ?e1 ?e2))";
     let outpat = "(* ?e1 (sum $x $y ?R ?e2))";
 
-    Rewrite::new_if("sum-fact-1", pat, outpat, |subst| {
+    Rewrite::new_if("sum-fact-1", pat, outpat, |subst, _| {
         !subst["e1"].slots().contains(&Slot::named("x"))
         && !subst["e1"].slots().contains(&Slot::named("y"))
     })
@@ -129,7 +129,7 @@ fn sum_fact_2() -> SdqlRewrite {
     let pat = "(sum $x $y ?R (* ?e1 ?e2))";
     let outpat = "(* (sum $x $y ?R ?e1) ?e2)";
 
-    Rewrite::new_if("sum-fact-2", pat, outpat, |subst| {
+    Rewrite::new_if("sum-fact-2", pat, outpat, |subst, _| {
         !subst["e2"].slots().contains(&Slot::named("x"))
         && !subst["e2"].slots().contains(&Slot::named("y"))
     })
@@ -142,7 +142,7 @@ fn sum_fact_3() -> SdqlRewrite {
     let pat = "(sum $x $y ?R (sing ?e1 ?e2))";
     let outpat = "(sing ?e1 (sum $x $y ?R ?e2))";
 
-    Rewrite::new_if("sum-fact-3", pat, outpat, |subst| {
+    Rewrite::new_if("sum-fact-3", pat, outpat, |subst, _| {
         !subst["e1"].slots().contains(&Slot::named("x"))
         && !subst["e1"].slots().contains(&Slot::named("y"))
     })
@@ -229,7 +229,7 @@ fn sum_range_1() -> SdqlRewrite {
 fn sum_range_2() -> SdqlRewrite {
     Rewrite::new_if("sum-range-2", 
         "(sum $k $v (range ?st ?en) (ifthen (eq (var $k) ?key) ?body))",
-        "(let $k ?key (let $v (+ (var $k) (- ?st 1)) ?body))", |subst| {
+        "(let $k ?key (let $v (+ (var $k) (- ?st 1)) ?body))", |subst, _| {
         !subst["key"].slots().contains(&Slot::named("k"))
         && !subst["key"].slots().contains(&Slot::named("v"))
     })

@@ -1,6 +1,6 @@
 [package]
 name = "slotted-egraphs"
-version = "0.0.22"
+version = "0.0.25"
 edition = "2021"
 description = "E-Graphs with name binding"
 license = "Apache-2.0 OR MIT"
@@ -9,14 +9,14 @@ repository = "https://github.com/memoryleak47/slotted-egraphs/"
 [features]
 explanations = []
 checks = []
-trace = ["tracing/max_level_trace", "tracing/release_max_level_trace", "tracing"]
 
 [package.metadata.docs.rs]
 features = ["explanations"]
 
 [dependencies]
 fnv = "1.0.7"
-tracing = { version = "0.1", features = ["attributes"], optional = true }
+memory-stats = "1.0.0"
+tracing = "0.1"
 
 [dev-dependencies]
 symbol_table = { version = "0.3", features = ["global"]}

@@ -1,5 +1,27 @@
 use crate::*;
 use std::fs;
+use memory_stats::memory_stats;
+use std::time::Instant;
+use tracing::*;
+
+#[tracing::instrument(level = "trace", skip_all)]
+fn iteration_stats<W, L, N>(csv_out: &mut W, it_number: usize, eg: &EGraph<L, N>, found: bool, start_time: Instant) -> bool
+    where W: std::io::Write, L: Language, N: Analysis<L>
+{
+    let memory = memory_stats().expect("could not get current memory usage");
+    let out_of_memory = memory.virtual_mem > 4_000_000_000;
+    writeln!(csv_out, "{}, {}, {}, {}, {}, {}, {}, {}",
+        it_number,
+        memory.physical_mem,
+        memory.virtual_mem,
+        eg.total_number_of_nodes(),
+        eg.total_number_of_nodes(), // TODO: remove
+        // eg.ids().into_iter().map(|c| eg.enodes(c).len()).sum::<usize>(),
+        eg.ids().len(),
+        start_time.elapsed().as_secs_f64(),
+        found).unwrap();
+    out_of_memory
+}
 
 pub fn id<L: Language, A: Analysis<L>>(s: &str, eg: &mut EGraph<L, A>) -> AppliedId {
     // eg.check();
@@ -45,9 +67,15 @@ pub fn check_generic(input: &str, expected: &str, debug: bool, steps: usize) {
     let id1 = eg.add_syn_expr(re.clone());
 
 
-
-    for _ in 0..steps {
+	// let csv_out = format!("profile_{input}.csv");
+	let csv_out = "profile.csv";
+	let mut csv_f = std::fs::File::create(csv_out).unwrap();
+	let start_time = Instant::now();
+    for iteration in 0..steps {
     	apply_rewrites(&mut eg, &rewrites);
+    	if debug {
+    		iteration_stats(&mut csv_f, iteration, &eg, true, start_time);
+    	}
     }
 
     // apply_rewrites(&mut eg, &rewrites);
@@ -63,6 +91,7 @@ pub fn check_generic(input: &str, expected: &str, debug: bool, steps: usize) {
     	eprintln!("Expc. Cost: {}", get_cost(RecExpr::parse(expected).unwrap()));
     	eprintln!("Final Cost: {}", get_cost(term));
     	eprintln!("Final Cost2:{}", extractor.get_best_cost(&id1.clone(), &eg));
+
     	
     }
     // assert!(is_same(&actual, s2, &mut eg));
@@ -85,7 +114,7 @@ pub fn check_file(input_path: &str, expected_path: &str) {
 }
 
 pub fn check_file_steps(input_path: &str, expected_path: &str, steps: usize) {
-	check_file_generic(input_path, expected_path, false, steps);
+	check_file_generic(input_path, expected_path, true, steps);
 }
 
 pub fn check_file_debug(input_path: &str, expected_path: &str) {
@@ -129,18 +158,6 @@ fn blow4() {
     check("(lambda $a (lambda $b (let $x (let $y (* (var $a) (var $b)) (+ (var $y) (* (var $y) (var $b)))) (+ (var $x) (* (var $x) (var $b)))) ) )", 
     	"(lambda $var_1 (lambda $var_2 (let $var_3 (+ (* (var $var_1) (var $var_2)) (* (var $var_1) (* (var $var_2) (var $var_2)))) (+ (var $var_3) (* (var $var_3) (var $var_2))))))")
 }
-
-// // needs more rules enabled
-// #[test]
-// fn paper_example1() {
-// 	check("(* 1 (+ (sing k a) (sing k b)))", "(sing k (+ a b))")
-// }
-
-// // needs more rules enabled
-// #[test]
-// fn paper_example2() {
-// 	check("(+ 0 (* a b))", "(* a b)")
-// }
 
 #[test]
 fn paper_example3() {
