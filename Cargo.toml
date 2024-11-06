@@ -9,14 +9,14 @@ repository = "https://github.com/memoryleak47/slotted-egraphs/"
 [features]
 explanations = []
 checks = []
+trace = ["tracing/max_level_trace", "tracing/release_max_level_trace", "tracing"]
 
 [package.metadata.docs.rs]
 features = ["explanations"]
 
 [dependencies]
 fnv = "1.0.7"
-memory-stats = "1.0.0"
-tracing = "0.1"
+tracing = { version = "0.1", features = ["attributes"], optional = true }
 
 [dev-dependencies]
 symbol_table = { version = "0.3", features = ["global"]}

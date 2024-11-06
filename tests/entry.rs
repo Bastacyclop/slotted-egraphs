@@ -18,6 +18,9 @@ pub use lambda::*;
 mod rise;
 pub use rise::*;
 
+mod sdql;
+pub use sdql::*;
+
 mod sym;
 pub use sym::*;
 
@@ -26,9 +29,6 @@ pub use var::*;
 
 mod fgh;
 pub use fgh::*;
-
-mod sdql;
-pub use sdql::*;
 
 pub fn singleton_set<T: Eq + Hash>(t: T) -> HashSet<T> {
     [t].into_iter().collect()

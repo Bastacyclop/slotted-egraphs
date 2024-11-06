@@ -1,27 +1,28 @@
 use crate::*;
 use std::fs;
-use memory_stats::memory_stats;
+// use memory_stats::memory_stats;
 use std::time::Instant;
-use tracing::*;
+// use tracing::*;
+pub use slotted_egraphs::*;
 
-#[tracing::instrument(level = "trace", skip_all)]
-fn iteration_stats<W, L, N>(csv_out: &mut W, it_number: usize, eg: &EGraph<L, N>, found: bool, start_time: Instant) -> bool
-    where W: std::io::Write, L: Language, N: Analysis<L>
-{
-    let memory = memory_stats().expect("could not get current memory usage");
-    let out_of_memory = memory.virtual_mem > 4_000_000_000;
-    writeln!(csv_out, "{}, {}, {}, {}, {}, {}, {}, {}",
-        it_number,
-        memory.physical_mem,
-        memory.virtual_mem,
-        eg.total_number_of_nodes(),
-        eg.total_number_of_nodes(), // TODO: remove
-        // eg.ids().into_iter().map(|c| eg.enodes(c).len()).sum::<usize>(),
-        eg.ids().len(),
-        start_time.elapsed().as_secs_f64(),
-        found).unwrap();
-    out_of_memory
-}
+// #[tracing::instrument(level = "trace", skip_all)]
+// fn iteration_stats<W, L, N>(csv_out: &mut W, it_number: usize, eg: &EGraph<L, N>, found: bool, start_time: Instant) -> bool
+//     where W: std::io::Write, L: Language, N: Analysis<L>
+// {
+//     let memory = memory_stats().expect("could not get current memory usage");
+//     let out_of_memory = memory.virtual_mem > 4_000_000_000;
+//     writeln!(csv_out, "{}, {}, {}, {}, {}, {}, {}, {}",
+//         it_number,
+//         memory.physical_mem,
+//         memory.virtual_mem,
+//         eg.total_number_of_nodes(),
+//         eg.total_number_of_nodes(), // TODO: remove
+//         // eg.ids().into_iter().map(|c| eg.enodes(c).len()).sum::<usize>(),
+//         eg.ids().len(),
+//         start_time.elapsed().as_secs_f64(),
+//         found).unwrap();
+//     out_of_memory
+// }
 
 pub fn id<L: Language, A: Analysis<L>>(s: &str, eg: &mut EGraph<L, A>) -> AppliedId {
     // eg.check();
@@ -73,9 +74,9 @@ pub fn check_generic(input: &str, expected: &str, debug: bool, steps: usize) {
 	let start_time = Instant::now();
     for iteration in 0..steps {
     	apply_rewrites(&mut eg, &rewrites);
-    	if debug {
-    		iteration_stats(&mut csv_f, iteration, &eg, true, start_time);
-    	}
+    	// if debug {
+    	// 	iteration_stats(&mut csv_f, iteration, &eg, true, start_time);
+    	// }
     }
 
     // apply_rewrites(&mut eg, &rewrites);
