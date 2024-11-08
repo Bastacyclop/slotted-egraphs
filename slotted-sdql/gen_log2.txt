@@ -1,25 +1,25 @@
 ---- batax_v7_csr_dense_unfused ----
   Stop reason: TimeLimit
   Iterations: 10
-  Egraph size: 16764 nodes, 2740 classes
-  Total time: 161.060232459
+  Egraph size: 9505 nodes, 1887 classes
+  Total time: 34.0075055
 ---- mmm_sum_v7_csc_csr_unfused ----
   Stop reason: Saturated
-  Iterations: 14
-  Egraph size: 273 nodes, 71 classes
-  Total time: 0.663149667
+  Iterations: 15
+  Egraph size: 314 nodes, 75 classes
+  Total time: 0.854299167
 ---- mmm_v7_csr_csr_unfused ----
   Stop reason: Saturated
   Iterations: 18
-  Egraph size: 612 nodes, 92 classes
-  Total time: 2.631228084
+  Egraph size: 1308 nodes, 128 classes
+  Total time: 8.63604025
 ---- mttkrp_v7_csf_csr_csc_unfused ----
-  Stop reason: Saturated
-  Iterations: 22
-  Egraph size: 2316 nodes, 205 classes
-  Total time: 20.721991208
+  Stop reason: TimeLimit
+  Iterations: 17
+  Egraph size: 4721 nodes, 323 classes
+  Total time: 28.282316083
 ---- ttm_v1_csf_csr_unfused ----
   Stop reason: Saturated
-  Iterations: 19
-  Egraph size: 328 nodes, 93 classes
-  Total time: 1.3203750410000001
+  Iterations: 24
+  Egraph size: 2044 nodes, 196 classes
+  Total time: 26.227590041

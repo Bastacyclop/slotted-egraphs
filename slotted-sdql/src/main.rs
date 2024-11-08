@@ -27,7 +27,7 @@ fn main() {
     let id1 = eg.add_syn_expr(prog.clone());
 
     // println!("{}", prog);
-    let report = run_eqsat(&mut eg, rewrites, 30, 30, move |egraph| {
+    let report = run_eqsat(&mut eg, rewrites, 30, 25, move |egraph| {
             Ok(())
     });
     println!("---- {} ----", filename);

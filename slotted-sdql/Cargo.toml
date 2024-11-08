@@ -3,10 +3,6 @@ name = "slotted-sdql"
 version = "0.1.0"
 edition = "2021"
 
-[features]
-trace = ["slotted-egraphs/trace"]
-explanations = ["slotted-egraphs/explanations"]
-
 [dependencies]
 # slotted-egraphs = "0.0.19"
 slotted-egraphs = { path = "../../slotted-egraphs" }
@@ -19,4 +15,4 @@ tracing-subscriber = "0.3"
 thread_local = "1.1.8"
 
 [profile.release]
-debug = true
+debug = false

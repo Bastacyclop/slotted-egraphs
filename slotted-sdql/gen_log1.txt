@@ -1,25 +1,25 @@
 ---- batax_v0 ----
   Stop reason: TimeLimit
-  Iterations: 13
-  Egraph size: 24970 nodes, 3644 classes
-  Total time: 131.99708325
+  Iterations: 11
+  Egraph size: 5391 nodes, 831 classes
+  Total time: 29.064421875
 ---- mmm_sum_v0 ----
   Stop reason: Saturated
-  Iterations: 4
-  Egraph size: 26 nodes, 15 classes
-  Total time: 0.033839458
+  Iterations: 5
+  Egraph size: 30 nodes, 15 classes
+  Total time: 0.040392084
 ---- mmm_v0 ----
   Stop reason: Saturated
   Iterations: 9
-  Egraph size: 119 nodes, 27 classes
-  Total time: 0.199412333
+  Egraph size: 130 nodes, 27 classes
+  Total time: 0.193964125
 ---- mttkrp_v0 ----
   Stop reason: Saturated
   Iterations: 8
-  Egraph size: 421 nodes, 59 classes
-  Total time: 0.587756375
+  Egraph size: 466 nodes, 59 classes
+  Total time: 0.801385417
 ---- ttm_v0 ----
   Stop reason: Saturated
   Iterations: 9
-  Egraph size: 255 nodes, 47 classes
-  Total time: 0.375339333
+  Egraph size: 280 nodes, 47 classes
+  Total time: 0.492641291

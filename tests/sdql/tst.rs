@@ -276,12 +276,12 @@ fn mmm_sum_v7_csc_csr_unfused() {
 
 #[test]
 fn mmm_v7_csr_csr_unfused() {
-	check_file_steps("mmm_v7_csr_csr_unfused", "mmm_v7_csr_csr_unfused_esat", 5)
+	check_file_steps("mmm_v7_csr_csr_unfused", "mmm_v7_csr_csr_unfused_esat", 6)
 }
 
 #[test]
 fn batax_v7_csr_dense_unfused() {
-	check_file_steps("batax_v7_csr_dense_unfused", "batax_v7_csr_dense_unfused_esat", 7)
+	check_file_steps("batax_v7_csr_dense_unfused", "batax_v7_csr_dense_unfused_esat", 8)
 }
 
 #[test]
