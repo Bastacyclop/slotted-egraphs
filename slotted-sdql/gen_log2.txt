@@ -2,24 +2,29 @@
   Stop reason: TimeLimit
   Iterations: 10
   Egraph size: 9505 nodes, 1887 classes
-  Total time: 34.0075055
+  Total time: 35.20369225
+10 & 9505 & 1887 & No
 ---- mmm_sum_v7_csc_csr_unfused ----
   Stop reason: Saturated
   Iterations: 15
   Egraph size: 314 nodes, 75 classes
-  Total time: 0.854299167
+  Total time: 0.864379417
+15 & 314 & 75 & Yes
 ---- mmm_v7_csr_csr_unfused ----
   Stop reason: Saturated
   Iterations: 18
   Egraph size: 1308 nodes, 128 classes
-  Total time: 8.63604025
+  Total time: 8.633652542
+18 & 1308 & 128 & Yes
 ---- mttkrp_v7_csf_csr_csc_unfused ----
   Stop reason: TimeLimit
   Iterations: 17
   Egraph size: 4721 nodes, 323 classes
-  Total time: 28.282316083
+  Total time: 27.2528015
+17 & 4721 & 323 & No
 ---- ttm_v1_csf_csr_unfused ----
   Stop reason: Saturated
   Iterations: 24
   Egraph size: 2044 nodes, 196 classes
-  Total time: 26.227590041
+  Total time: 26.162217583
+24 & 2044 & 196 & Yes

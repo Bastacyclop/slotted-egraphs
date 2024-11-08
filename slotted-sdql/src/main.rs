@@ -35,5 +35,7 @@ fn main() {
     println!("  Iterations: {}", report.iterations);
     println!("  Egraph size: {} nodes, {} classes", report.egraph_nodes, report.egraph_classes);
     println!("  Total time: {}", report.total_time);
+    println!("{} & {} & {} & {}", report.iterations, report.egraph_nodes, report.egraph_classes, 
+        if matches!(report.stop_reason, slotted_egraphs::StopReason::Saturated) { "Yes" } else { "No" } )
     // may_trace_assert_reaches(lhs, rhs, csv_f, 60);
 }
