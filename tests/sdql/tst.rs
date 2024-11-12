@@ -62,6 +62,7 @@ static DEFAULT_STEPS:usize = 6;
 pub fn check_generic(input: &str, expected: &str, debug: bool, steps: usize) {
 	let re: RecExpr<Sdql> = RecExpr::parse(input).unwrap();
     let rewrites = sdql_rules();
+    // let rewrites = sdql_rules_old();
 
     let mut eg = EGraph::<Sdql, SdqlKind>::new();
 
@@ -293,3 +294,13 @@ fn mttkrp_v7_csf_csr_csc_unfused() {
 fn ttm_v1_csf_csr_unfused() {
 	check_file_steps("ttm_v1_csf_csr_unfused", "ttm_v1_csf_csr_unfused_esat", 14)
 }
+
+// #[test]
+// fn batax_full() {
+// 	check_file_steps("batax_full", "batax_v7_csr_dense_unfused_esat", 8)
+// }
+
+// #[test]
+// fn mmm_sum_full() {
+// 	check_file_steps("mmm_sum_full", "mmm_sum_v7_csc_csr_unfused_esat", 19)
+// }

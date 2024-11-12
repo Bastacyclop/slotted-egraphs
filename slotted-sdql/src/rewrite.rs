@@ -208,6 +208,16 @@ fn sum_sum_vert_fuse_2() -> SdqlRewrite {
     Rewrite::new("sum-sum-vert-fuse-2", pat, outpat)
 }
 
+// rw!("get-sum-vert-fuse-1";  "(get (sum ?R (sing %1 ?body1)) ?body2)"        => 
+//     { with_shifted_up(var("?R"), var("?Ru"), 0,
+//         "(let ?body2 (let (get ?Ru %0) ?body1))".parse::<Pattern<SDQL>>().unwrap()
+//     )}),
+fn get_sum_vert_fuse_1() -> SdqlRewrite {
+    let pat = "(get (sum $k $v ?R (sing (var $k) ?body1)) ?body2)";
+    let outpat = "(let $k ?body2 (let $v (get ?R (var $k)) ?body1))";
+    Rewrite::new("get-sum-vert-fuse-1", pat, outpat)
+}
+
 // rw!("sum-range-1";  "(sum (range ?st ?en) (ifthen (== %0 ?key) ?body))" => 
 //   { with_shifted_double_up(var("?st"), var("?stu"), 0,
 //     "(sum (range ?st ?en) (ifthen (== %1 (- ?key (- ?stu 1))) ?body))".parse::<Pattern<SDQL>>().unwrap()
@@ -216,6 +226,21 @@ fn sum_range_1() -> SdqlRewrite {
     Rewrite::new("sum-range-1", 
         "(sum $k $v (range ?st ?en) (ifthen (eq (var $v) ?key) ?body))",
         "(sum $k $v (range ?st ?en) (ifthen (eq (var $k) (- ?key (- ?st 1))) ?body))")
+}
+
+// rw!("sum-range-2";  "(sum (range ?st ?en) (ifthen (== %1 ?key) ?body))"        => 
+//   { with_shifted_double_down(var("?key"), var("?keyd"), 2,
+//     with_shifted_up(var("?st"), var("?stu"), 0,
+//     "(let ?keyd (let (+ %0 (- ?stu 1)) ?body))".parse::<Pattern<SDQL>>().unwrap()
+// ))})
+fn sum_range_2() -> SdqlRewrite {
+    Rewrite::new_if("sum-range-2", 
+        "(sum $k $v (range ?st ?en) (ifthen (eq (var $k) ?key) ?body))",
+        "(let $k ?key (let $v (+ (var $k) (- ?st 1)) ?body))", |subst, _| {
+        !subst["key"].slots().contains(&Slot::named("k"))
+        && !subst["key"].slots().contains(&Slot::named("v"))
+    })
+    // adds a check for ?key to be invariant to the loop
 }
 
 // rw!("sum-merge";  "(sum ?R (sum ?S (ifthen (== %2 %0) ?body)))"        => 
@@ -267,6 +292,29 @@ fn sum_sing() -> SdqlRewrite {
 // rw!("unique-rm";   "(unique ?e)" => "?e"),
 fn unique_rm() -> SdqlRewrite {
     Rewrite::new("unique-rm", "(unique ?e)", "?e")
+}
+
+pub fn sdql_rules_old() -> Vec<SdqlRewrite> {
+
+    vec![
+      mult_assoc1(), mult_assoc2(), sub_identity(), add_zero(), sub_zero(),
+      eq_comm(),
+      mult_app1(), mult_app2(), add_app1(), add_app2(), sub_app1(), sub_app2(), 
+      get_app1(), get_app2(), sing_app1(), sing_app2(), unique_app1(), unique_app2(),
+      let_binop3(), let_binop4(), let_apply1(), let_apply2(),
+      if_mult2(), if_to_mult(), mult_to_if(),
+      beta(), 
+      sum_fact_1(), sum_fact_2(), sum_fact_3(),
+      sing_mult_1(), sing_mult_2(), sing_mult_3(), sing_mult_4(),
+      sum_fact_inv_1(),
+      sum_sum_vert_fuse_1(),
+      sum_sum_vert_fuse_2(),
+      get_sum_vert_fuse_1(),
+      sum_range_1(), sum_range_2(),
+      sum_merge(),
+      get_to_sum(),
+      sum_sing(), unique_rm()
+      ]
 }
 
 pub fn sdql_rules() -> Vec<SdqlRewrite> {
