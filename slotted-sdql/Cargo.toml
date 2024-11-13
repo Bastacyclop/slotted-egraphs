@@ -3,6 +3,10 @@ name = "slotted-sdql"
 version = "0.1.0"
 edition = "2021"
 
+[features]
+trace = ["slotted-egraphs/trace"]
+explanations = ["slotted-egraphs/explanations"]
+
 [dependencies]
 # slotted-egraphs = "0.0.19"
 slotted-egraphs = { path = "../../slotted-egraphs" }
